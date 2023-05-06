@@ -2,11 +2,11 @@ import { Router } from "express";
 const router = Router();
 import {createUser,GetUser,GetUserById,UpdateUserById,DeleteUserById} from '/usuario/userController'; 
 
-router.post('/', UserCtrl.createUser); 
+router.post('/', createUser); 
 // Agrega las demás rutas aquí:
-router.get('/', UserCtrl.GetUser);
-router.get('/:id', UserCtrl.GetUserById);
-router.put('/:id', UserCtrl.UpdateUserById);
-router.delete('/:id', UserCtrl.DeleteUserById);
+router.get('/', GetUser);
+router.get('/:id', GetUserById);
+router.put('/:id', UpdateUserById);
+router.delete('/:id', DeleteUserById);
 
 export default router;
