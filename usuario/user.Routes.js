@@ -1,6 +1,6 @@
 import { Router } from "express";
 const router = Router();
-import {createUser,GetUser,GetUserById,UpdateUserById,DeleteUserById} from '/usuario/userController'; 
+import {createUser,GetUser,GetUserById,UpdateUserById,DeleteUserById} from './userController'; 
 
 router.post('/', createUser); 
 // Agrega las demás rutas aquí:

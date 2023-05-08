@@ -1,7 +1,14 @@
-import User from '/usuario/userModel';
+import User from './userModel';
 
 export async function createUser  (req, res)  {
-  // Código aquí
+  try {
+    const {username,email,password}=req.body;
+    const user= new User({username,email,password});
+    const resultado= await user.save();
+    res.status(200).json(resultado)
+  } catch (error) {
+    res.status(500).json(err)
+  }
 };
 
 export async function  GetUser  (req, res)  {
