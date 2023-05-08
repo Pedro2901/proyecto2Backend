@@ -1,17 +1,17 @@
-import { createEmpanada, deleteEmpanada, getEmpanada, patchEmpanada } from "./pedidoController";
-import {Router} from 'express';
+import { createPedido, getPedidoById, getPedidos, putPedido } from "./pedidoController";
+import { Router } from 'express';
 const router = Router();
 
-// Endpoint GET /prueba
-router.get('/', getEmpanada );
+// Endpoint POST
+router.post('/', createPedido);
 
-// Endpoint POST /prueba
-router.post('/', createEmpanada );
+// Endpoint GET
+router.get('/', getPedidoById);
 
-// Endpoint PATCH /prueba
-router.patch('/', patchEmpanada );
+// Endpoint PUT
+router.get('/', getPedidos);
 
-// Endpoint DELETE /prueba
-router.delete('/', deleteEmpanada );
+// Endpoint DELETE
+router.put('/', putPedido);
 
 export default router;
