@@ -30,8 +30,8 @@ mongoose
 app.use(cors());
 app.use(express.json());
 
-import empanadaRoutes from './empanada/empanada.routes'
-app.use('/empanada', empanadaRoutes)
+import pedidoRoutes from './pedido/pedido.Routes'
+app.use('/', pedidoRoutes)
 
 // Endpoint para 404
 app.use((req, res) => {

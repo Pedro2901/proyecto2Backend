@@ -1,4 +1,4 @@
-import { createEmpanada, deleteEmpanada, getEmpanada, patchEmpanada } from "./empanada.controller";
+import { createEmpanada, deleteEmpanada, getEmpanada, patchEmpanada } from "./pedidoController";
 import {Router} from 'express';
 const router = Router();
 

@@ -1,5 +1,5 @@
 
-import Empanada from './empanada.model';
+import Empanada from './pedidoModel';
 
 export async function getEmpanada(req,res) {
   // const { name } = req.query;
