@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import {Schema,model} from "mongoose";
 import bcrypt from "bcryptjs";
 
-const productSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -15,7 +15,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    roles: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Role",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -42,4 +47,4 @@ productSchema.pre("save", async function (next) {
   next();
 })
 
-export default mongoose.model("User", productSchema);
+export default model("User", userSchema);

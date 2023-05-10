@@ -3,7 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 const app = express();
-
+app.use(bodyParser.json());
 // Conexión a MongoDB usando mongoose
 mongoose
   .connect(
@@ -28,9 +28,11 @@ mongoose
 // Middlewares
 app.use(cors());
 app.use(express.json());
-
+//routes
+import userRoutes from './usuario/user.Routes'
 import pedidoRoutes from './pedido/pedido.Routes'
 app.use('/pedidos', pedidoRoutes)
+app.user('/user', userRoutes)
 
 // Endpoint para 404
 app.use((req, res) => {
