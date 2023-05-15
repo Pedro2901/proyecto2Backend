@@ -8,42 +8,29 @@ import Producto from '../producto/productoModel';
 export async function createPedido(req, res) {
   try {
     const { _id } = req.params;
-    const { productos, idUsuario } = req.body;
+    const { producto, idUsuario } = req.body;
 
-    const restaurante = await Restaurante.findById(_id);
-    if (!restaurante) return res.status(404).json({ message: 'Restaurante no encontrado.' });
-    if (!restaurante.activo) return res.status(403).json({ message: 'No se puede crear el pedido, el restaurante no está activo.' });
-
-    const usuario = await Usuario.findById(idUsuario);
+    const usuario = await User.findById(idUsuario);
     if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado.' });
-    if (usuario.rol !== 'Cliente') return res.status(403).json({ message: 'No se puede crear el pedido, el usuario no tiene rol de cliente.' });
     if (!usuario.activo) return res.status(403).json({ message: 'No se puede crear el pedido, el usuario no está activo.' });
 
-    const prodsbyID = await Producto.find({ idRestaurante: restaurante._id, activo: true });
-    const prodsRestaurante = prodsbyID.map(p => p.nombre);
-    const prodsNoEncontrados = productos.filter(p => !prodsRestaurante.includes(p.nombre));
+    const vendedor = await User.findById(_id);
+    if (!vendedor) return res.status(404).json({ message: 'Vendedor no encontrado.' });
+    if (!vendedor.activo) return res.status(403).json({ message: 'No se puede crear el pedido, el vendedor no está activo.' });
 
-    if (prodsNoEncontrados.length > 0) {
-      const nombresNoEncontrados = prodsNoEncontrados.map(p => p.nombre).join(', ');
-      return res.status(400).json({ message: `Los siguientes productos no se encuentran disponibles: ${nombresNoEncontrados}` });
-    }
+    const prodbyID = await Producto.findOne({ idVendedor: vendedor._id, nombre: producto.nombre, activo: true });
+    if (!prodbyID) return res.status(400).json({ message: 'No se encontró el producto en el inventario del vendedor' });
 
-    let valorTotal = 0;
-    const newproductos = productos.map(p => {
-      const { _id, precio } = prodsbyID.find(rp => rp.nombre === p.nombre);
-      const valorProducto = p.cantidad * precio;
-      valorTotal += valorProducto;
-      return { nombre: p.nombre, _id, cantidad: p.cantidad }
-    })
+    const { _id: idProducto, precio } = prodbyID;
+    const valorTotal = producto.cantidad * precio;
+    const newproducto = { nombre: producto.nombre, idProducto, cantidad: producto.cantidad };
 
-    const idRestaurante = restaurante._id;
     const direccion = usuario.direccion;
-    const distanceRestClient = `${Math.floor(Math.random() * 1000) + 1} metros`
-    const pedido = new Pedido({ idUsuario, direccion, idRestaurante, productos: newproductos, valorTotal, distanceRestClient });
+    const pedido = new Pedido({ idUsuario, idVendedor: _id, direccion, producto: newproducto, valorTotal });
 
-    restaurante.pedidos.push(pedido);
+    vendedor.pedidos.push(pedido);
     const resultado = await pedido.save();
-    await restaurante.save();
+    await vendedor.save();
     res.status(200).json(resultado);
   } catch (error) {
     console.error('Error creando el pedido:', error.message);
