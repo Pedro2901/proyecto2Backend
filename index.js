@@ -11,19 +11,17 @@ mongoose
     process.env.MONGO_USER +
     ':' +
     process.env.MONGO_PASS +
-    '@cluster0.j7xqxtl.mongodb.net/dllo-backend-2023-10',
+    '@clusterproyecto2.7vocydo.mongodb.net/BD-Proyecto2?retryWrites=true&w=majority',
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }
   )
   .then(() => {
-    console.log('Connected.');
+    console.log('Conectado a la base de datos de MongoDB.');
   })
-  .catch((err) => {
-    console.log('There was an error with connection!');
-    console.log(err);
-  });
+  .catch((err) => { console.error('Error de conexión a la BD de MongoDB:', err.message); });
+mongoose.Promise = global.Promise;
 
 // Middlewares
 app.use(cors());
