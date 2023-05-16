@@ -30,7 +30,7 @@ app.use(express.json());
 import userRoutes from './usuario/user.Routes'
 import pedidoRoutes from './pedido/pedido.Routes'
 app.use('/pedidos', pedidoRoutes)
-app.user('/user', userRoutes)
+app.use('/user', userRoutes)
 
 // Endpoint para 404
 app.use((req, res) => {

@@ -42,11 +42,13 @@ export async function createPedido(req, res) {
 export async function getPedidoById(req, res) {
   try {
     const pedido = await Pedido.findOne({ _id: req.params._id, activo: true });
-    const restaurante = await Restaurante.findById(pedido.idRestaurante);
+    const vendedor = await User.findById(pedido.idVendedor);
+    const usuario = await User.findById(pedido.idUsuario);
 
     if (!pedido) return res.status(404).json({ message: 'No se encontró pedido con esa ID o está inhabilitado.' });
 
-    if (!restaurante.activo) return res.status(403).json({ message: 'No se puede encontrar el pedido, el restaurante no está activo.' });
+    if (!vendedor.activo) return res.status(403).json({ message: 'No se puede encontrar el pedido, el vendedor no está activo.' });
+    if (!usuario.activo) return res.status(403).json({ message: 'No se puede encontrar el pedido, el usuario no está activo.' });
 
     res.status(200).json(pedido);
   } catch (error) {
