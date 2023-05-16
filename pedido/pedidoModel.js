@@ -11,8 +11,14 @@ const pedidoSchema = mongoose.Schema({
   idVendedor: { type: String, default: "" },
   valorTotal: { type: Number },
   activo: { type: Boolean, default: true },
-  comentarios: { type: String },
-  calificacion: { type: Number }
-}, { timestamps: true });
+  comentarios: { type: String, default: "" },
+  calificacion: {
+    type: Number,
+    default: 0,
+    min: [0, "La calificación mínima permitida es 0."],
+    max: [5, "La calificación máxima permitida es 5."]
+  }
+},
+  { timestamps: true });
 
 export default mongoose.model('Pedido', pedidoSchema);
