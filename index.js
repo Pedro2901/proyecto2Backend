@@ -3,7 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 const app = express();
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 // Conexión a MongoDB usando mongoose
 mongoose
   .connect(
