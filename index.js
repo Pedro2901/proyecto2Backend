@@ -29,9 +29,10 @@ app.use(express.json());
 //routes
 import userRoutes from './usuario/user.Routes'
 import pedidoRoutes from './pedido/pedido.Routes'
+import authRoutes from './auth/auth.routes'
 app.use('/pedidos', pedidoRoutes)
 app.use('/user', userRoutes)
-
+app.use('/auth',authRoutes)
 // Endpoint para 404
 app.use((req, res) => {
   res.status(404).json({ message: 'Ruta no encontrada.' });
