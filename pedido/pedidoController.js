@@ -4,21 +4,23 @@ import Producto from '../producto/productoModel';
 
 // ------------------------------------------- CRUD de pedidos ------------------------------------------------
 
-//Crear nuevo pedido
+//Crear un pedido de un producto 
 export async function createPedido(req, res) {
+  const { idUsuario } = req;
+  if (!idUsuario) return res.status(403).json({ message: 'Usuario no autorizado' });
+
   try {
-    const { _id } = req.params;
-    const { producto, idUsuario } = req.body;
+    const { producto, idVendedor } = req.body;
 
     const usuario = await User.findById(idUsuario);
     if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado.' });
-    if (!usuario.activo) return res.status(403).json({ message: 'No se puede crear el pedido, el usuario no está activo.' });
+    if (!usuario.isEnabled) return res.status(403).json({ message: 'No se puede crear el pedido, el usuario no está activo.' });
 
-    const vendedor = await User.findById(_id);
+    const vendedor = await User.findById(idVendedor);
     if (!vendedor) return res.status(404).json({ message: 'Vendedor no encontrado.' });
-    if (!vendedor.activo) return res.status(403).json({ message: 'No se puede crear el pedido, el vendedor no está activo.' });
+    if (!vendedor.isEnabled) return res.status(403).json({ message: 'No se puede crear el pedido, el vendedor no está activo.' });
 
-    const prodbyID = await Producto.findOne({ idVendedor: vendedor._id, nombre: producto.nombre, activo: true });
+    const prodbyID = await Producto.findOne({ idVendedor: idVendedor, nombre: producto.nombre, isEnabled: true });
     if (!prodbyID) return res.status(400).json({ message: 'No se encontró el producto en el inventario del vendedor' });
 
     const { _id: idProducto, precio } = prodbyID;
@@ -26,11 +28,9 @@ export async function createPedido(req, res) {
     const newproducto = { nombre: producto.nombre, idProducto, cantidad: producto.cantidad };
 
     const direccion = usuario.direccion;
-    const pedido = new Pedido({ idUsuario, idVendedor: _id, direccion, producto: newproducto, valorTotal });
+    const pedido = new Pedido({ idUsuario, idVendedor, direccion, producto: newproducto, valorTotal });
 
-    vendedor.pedidos.push(pedido);
     const resultado = await pedido.save();
-    await vendedor.save();
     res.status(200).json(resultado);
   } catch (error) {
     console.error('Error creando el pedido:', error.message);
@@ -40,15 +40,18 @@ export async function createPedido(req, res) {
 
 //Retornar datos de pedidos según la _id
 export async function getPedidoById(req, res) {
+  const { idUsuario } = req;
+  if (!idUsuario) return res.status(403).json({ message: 'Usuario no autorizado' });
+
   try {
-    const pedido = await Pedido.findOne({ _id: req.params._id, activo: true });
+    const pedido = await Pedido.findOne({ _id: req.params._id, isEnabled: true });
     const vendedor = await User.findById(pedido.idVendedor);
     const usuario = await User.findById(pedido.idUsuario);
 
     if (!pedido) return res.status(404).json({ message: 'No se encontró pedido con esa ID o está inhabilitado.' });
 
-    if (!vendedor.activo) return res.status(403).json({ message: 'No se puede encontrar el pedido, el vendedor no está activo.' });
-    if (!usuario.activo) return res.status(403).json({ message: 'No se puede encontrar el pedido, el usuario no está activo.' });
+    if (!vendedor.isEnabled) return res.status(403).json({ message: 'No se puede encontrar el pedido, el vendedor no está activo.' });
+    if (!usuario.isEnabled) return res.status(403).json({ message: 'No se puede encontrar el pedido, el usuario no está activo.' });
 
     res.status(200).json(pedido);
   } catch (error) {
@@ -60,9 +63,12 @@ export async function getPedidoById(req, res) {
 //Retorna datos de pedidos REALIZADOS por un usuario y/o entre las fechas dadas
 //Formato fechaInicio, fechaFin: DD/MM/AAAA hh:mm:ss
 export async function getPedidos(req, res) {
+  const { idUsuario } = req;
+  if (!idUsuario) return res.status(403).json({ message: 'Usuario no autorizado' });
+
   try {
-    const { idUsuario, fechaInicio, fechaFin } = req.query;
-    const query = { activo: true };
+    const { fechaInicio, fechaFin } = req.query;
+    const query = { isEnabled: true };
 
     const fechaI = fechaInicio ? new Date(fechaInicio.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1T$4:$5:$6Z')) : null;
     const fechaF = fechaFin ? new Date(fechaFin.replace(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/, '$3-$2-$1T$4:$5:$6Z')) : null;
@@ -70,7 +76,7 @@ export async function getPedidos(req, res) {
     if (idUsuario) {
       query.idUsuario = idUsuario;
       const cliente = await User.findById(idUsuario);
-      if (!cliente.activo) return res.status(403).json({ message: 'No se pueden obtener pedidos, el usuario no está activo' });
+      if (!cliente.isEnabled) return res.status(403).json({ message: 'No se pueden obtener pedidos, el usuario no está activo' });
     } else if (fechaI && fechaF) {
       query.createdAt = { $gte: fechaI, $lte: fechaF }; //$gte (mayor o igual que) y $lte (menor o igual que)
     } else if (fechaI) {
@@ -94,21 +100,22 @@ export async function getPedidos(req, res) {
 
 //Modificar la calificación y comentarios del pedido.
 export async function putPedido(req, res) {
+  const { idUsuario } = req;
+  if (!idUsuario) return res.status(403).json({ message: 'Usuario no autorizado' });
+
   try {
-    const { idUsuario, comentarios, calificacion } = req.body;
+    const { comentarios, calificacion } = req.body;
 
     const pedido = await Pedido.findById(req.params._id);
     if (!pedido) return res.status(404).json({ message: 'Pedido no encontrado' })
-    if (!pedido.activo) return res.status(400).json({ message: 'El pedido no está activo, no puede modificar.' });
+    if (!pedido.isEnabled) return res.status(400).json({ message: 'El pedido no está activo, no puede modificar.' });
 
     const usuario = await User.findById(idUsuario);
     if (!usuario) return res.status(404).json({ message: 'Usuario no encontrado' })
-    if (!usuario.activo) return res.status(400).json({ message: 'El usuario no está activo, no puede modificar el pedido.' });
-    //if (pedido.idUsuario.toString() !== idUsuario) return res.status(403).json({ message: 'No se puede modificar el pedido porque el usuario no es el dueño del mismo.' });
+    if (!usuario.isEnabled) return res.status(400).json({ message: 'El usuario no está activo, no puede modificar el pedido.' });
 
     const pedidoUpdated = await Pedido.findByIdAndUpdate(req.params._id, {
-      ...req.body,
-      comentarios, 
+      comentarios,
       calificacion
     }, { new: true });
 

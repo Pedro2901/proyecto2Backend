@@ -1,9 +1,6 @@
-import express from 'express';
-import cors from 'cors';
+import { server } from './servidor';
 import mongoose from 'mongoose';
 
-const app = express();
-//app.use(bodyParser.json());
 // Conexión a MongoDB usando mongoose
 mongoose
   .connect(
@@ -23,20 +20,7 @@ mongoose
   .catch((err) => { console.error('Error de conexión a la BD de MongoDB:', err.message); });
 mongoose.Promise = global.Promise;
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
-//routes
-import userRoutes from './usuario/user.Routes'
-import pedidoRoutes from './pedido/pedido.Routes'
-import authRoutes from './auth/auth.routes'
-app.use('/pedidos', pedidoRoutes)
-app.use('/user', userRoutes)
-app.use('/auth',authRoutes)
-// Endpoint para 404
-app.use((req, res) => {
-  res.status(404).json({ message: 'Ruta no encontrada.' });
-});
+const app = server();
 
 // Inicia app en puerto 8080
 app.listen(8080, () => {

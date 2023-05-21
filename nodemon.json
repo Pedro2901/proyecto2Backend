@@ -1,6 +1,7 @@
 {
   "env": {
     "MONGO_USER": "GrupoBackendProyecto2",
-    "MONGO_PASS": "cIUPK90AQk3HEzqR"
+    "MONGO_PASS": "cIUPK90AQk3HEzqR",
+    "JWT_SECRET": "sklfjnlskfbeljkfbsjkfd"
   }
 }

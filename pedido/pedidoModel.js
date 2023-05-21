@@ -10,7 +10,7 @@ const pedidoSchema = mongoose.Schema({
   idUsuario: { type: String, required: [true, "El ID del usuario es obligatorio."] },
   idVendedor: { type: String, default: "" },
   valorTotal: { type: Number },
-  activo: { type: Boolean, default: true },
+  isEnabled: { type: Boolean, default: true },
   comentarios: { type: String, default: "" },
   calificacion: {
     type: Number,
