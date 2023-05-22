@@ -48,7 +48,7 @@ describe('Tests controlador pedidos', () => {
                 producto
             }
         }
-        const pedidoResponse = createPedido(req, response)
+        const pedidoResponse = await createPedido(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
         expect(JSON.parse(pedidoResponse.body).producto.nombre).toBe('PROD_REAL');
     })
@@ -67,7 +67,7 @@ describe('Tests controlador pedidos', () => {
                 producto
             }
         }
-        const pedidoResponse = createPedido(req, response)
+        const pedidoResponse = await createPedido(req, response)
         expect(pedidoResponse.statusCode).toBe(404);
         expect(JSON.parse(pedidoResponse.body).message).toBe('Usuario no encontrado.');
     })
@@ -78,7 +78,7 @@ describe('Tests controlador pedidos', () => {
             idUsuario,
             params: { _id: "ID_REAL" }
         }
-        const pedidoResponse = getPedidoById(req, response)
+        const pedidoResponse = await getPedidoById(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
         expect(JSON.parse(pedidoResponse.body)._id).toBe('ID_REAL');
     })
@@ -89,9 +89,67 @@ describe('Tests controlador pedidos', () => {
             idUsuario,
             params: { _id: "ID_INEXISTENTE" }
         }
-        const pedidoResponse = getPedidoById(req, response)
+        const pedidoResponse = await getPedidoById(req, response)
         expect(pedidoResponse.statusCode).toBe(404);
         expect(JSON.parse(pedidoResponse.body).message).toBe('No se encontró pedido con esa ID o está inhabilitado.');
+    })
+
+    test('Controlador getPedidos', async () => {
+        const idUsuario = "ID_REAL";
+        const req = {
+            idUsuario,
+            query: {
+                fechaInicio: "22/05/2023 00:00:00",
+                fechaFin: "26/05/2023 23:59:59"
+            }
+        }
+        const pedidoResponse = await getPedidos(req, response)
+        expect(pedidoResponse.statusCode).toBe(200);
+        expect(JSON.parse(pedidoResponse.body).idUsuario).toBe('ID_REAL');
+    })
+
+    test('Controlador getPedidos', async () => {
+        const idUsuario = "ID_INACTIVO";
+        const req = {
+            idUsuario,
+            query: {
+                fechaInicio: "22/05/2023 00:00:00",
+                fechaFin: "26/05/2023 23:59:59"
+            }
+        }
+        const pedidoResponse = await getPedidos(req, response)
+        expect(pedidoResponse.statusCode).toBe(403);
+        expect(JSON.parse(pedidoResponse.body).message).toBe('No se pueden obtener pedidos, el usuario no está activo');
+    })
+
+    test('Controlador putPedido', async () => {
+        const idUsuario = "ID_REAL";
+        const req = {
+            idUsuario,
+            body: {
+                comentarios: "Muy buen producto",
+                calificacion: 4
+            },
+            params: { _id: "ID_PEDIDO_REAL" }
+        }
+        const pedidoResponse = await putPedido(req, response)
+        expect(pedidoResponse.statusCode).toBe(200);
+        expect(JSON.parse(pedidoResponse.body)._id).toBe('ID_PEDIDO_REAL');
+    })
+
+    test('Controlador putPedido', async () => {
+        const idUsuario = "ID_REAL";
+        const req = {
+            idUsuario,
+            body: {
+                comentarios: "Muy buen producto",
+                calificacion: 4
+            },
+            params: { _id: "ID_PEDIDO_INEXISTENTE" }
+        }
+        const pedidoResponse = await putPedido(req, response)
+        expect(pedidoResponse.statusCode).toBe(404);
+        expect(JSON.parse(pedidoResponse.body).message).toBe('Pedido no encontrado');
     })
 })
 
@@ -183,5 +241,84 @@ describe('Tests endpoints pedidos', () => {
             .set('Authorization', `Bearer ${res.body.token}`)
         expect(pedidoResponse.statusCode).toBe(404);
         expect(pedidoResponse.body.message).toBe('No se encontró pedido con esa ID o está inhabilitado.');
+    })
+
+    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas', async () => {
+        const user = { username: 'JuanFran', password: '92420ekjwd' };
+        const res = await request(server)
+            .post('/auth/signin')
+            .send(user);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('token');
+
+        const pedidoResponse = await request(server)
+            .get('/pedidos/')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .query({
+                fechaInicio: "22/05/2023 00:00:00",
+                fechaFin: "26/05/2023 00:00:00"
+            })
+        expect(pedidoResponse.statusCode).toBe(200);
+        expect(pedidoResponse.body.username).toBe('JuanFran');
+    })
+
+    //A revisar
+    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas', async () => {
+        const user = { username: 'JuanFran', password: '92420ekjwd' };
+        const res = await request(server)
+            .post('/auth/signin')
+            .send(user);
+        expect(res.statusCode).toBe(403);
+        expect(res.body).toHaveProperty('token');
+
+        const pedidoResponse = await request(server)
+            .get('/pedidos/')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .query({
+                fechaInicio: "22/05/2023 00:00:00",
+                fechaFin: "26/05/2023 00:00:00"
+            })
+        expect(pedidoResponse.statusCode).toBe(403);
+        expect(pedidoResponse.body.message).toBe('Usuario no autorizado');
+    })
+
+    test('Endpoint modificar comentarios y calificación del pedido', async () => {
+        const user = { username: 'JuanFran', password: '92420ekjwd' };
+        const res = await request(server)
+            .post('/auth/signin')
+            .send(user);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('token');
+
+        const body = {
+                comentarios: "Producto regular",
+                calificacion: 3
+            }
+        const pedidoResponse = await request(server)
+            .put('/pedidos/ID_PEDIDO_REAL')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .send(body);
+        expect(pedidoResponse.statusCode).toBe(200);
+        expect(pedidoResponse.body._id).toBe('ID_PEDIDO_REAL');
+    })
+
+    test('Endpoint modificar comentarios y calificación del pedido', async () => {
+        const user = { username: 'JuanFran', password: '92420ekjwd' };
+        const res = await request(server)
+            .post('/auth/signin')
+            .send(user);
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('token');
+
+        const body = {
+                comentarios: "Producto regular",
+                calificacion: 3
+            }
+        const pedidoResponse = await request(server)
+            .put('/pedidos/ID_PEDIDO_INEXISTENTE')
+            .set('Authorization', `Bearer ${res.body.token}`)
+            .send(body);
+        expect(pedidoResponse.statusCode).toBe(404);
+        expect(pedidoResponse.body.message).toBe('Pedido no encontrado');
     })
 })
