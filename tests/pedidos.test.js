@@ -291,9 +291,9 @@ describe('Tests endpoints pedidos', () => {
         expect(res.body).toHaveProperty('token');
 
         const body = {
-                comentarios: "Producto regular",
-                calificacion: 3
-            }
+            comentarios: "Producto regular",
+            calificacion: 3
+        }
         const pedidoResponse = await request(server)
             .put('/pedidos/ID_PEDIDO_REAL')
             .set('Authorization', `Bearer ${res.body.token}`)
@@ -311,9 +311,9 @@ describe('Tests endpoints pedidos', () => {
         expect(res.body).toHaveProperty('token');
 
         const body = {
-                comentarios: "Producto regular",
-                calificacion: 3
-            }
+            comentarios: "Producto regular",
+            calificacion: 3
+        }
         const pedidoResponse = await request(server)
             .put('/pedidos/ID_PEDIDO_INEXISTENTE')
             .set('Authorization', `Bearer ${res.body.token}`)
