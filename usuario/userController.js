@@ -61,11 +61,8 @@ export async function GetUserById(req, res) {
     if (!user) {
       return res.status(404).send();
     }
-    const {username,email,password}=req.body
-
-    await u
-
-
+    console.log(user)
+    
 
   } catch (error) {
     res.status(500).send();
@@ -74,11 +71,14 @@ export async function GetUserById(req, res) {
 
 export async function UpdateUserById(req, res) {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const {username,email,password}=req.body
+
+    await User.findByIdAndUpdate(req.params.id , {username,email,password})
+    
     if (!user) {
       return res.status(404).send();
     }
-    res.send(user);
+    res.json(user);
   } catch (error) {
     res.status(400).send(error);
   }
