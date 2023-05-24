@@ -4,6 +4,7 @@ const ProductSchema = new Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   name: String,
   category: String,
+  price: Number,
   // Añade aquí cualquier otro campo que quieras para tus productos
   isEnabled: { type: Boolean, default: true }
 });

@@ -1,11 +1,19 @@
 import {Router}from "express"
 const router=Router();
 const jwt = require('jsonwebtoken');
-import { verifyToken } from '../middlewares/index';
-import { createProduct } from "./productoController";
+import {authjwt} from '../middlewares/index';
+import { createProduct,getProducts,getProductById,updateProductById,deleteProductById } from "./productoController";
 
 
-router.post('/',verifyToken,createProduct);
+router.post('/create',[authjwt.verifyToken,authjwt.isModerator],createProduct);
+
+router.get('/get',getProducts)
+
+router.get('/:productId',getProductById)
+
+router.get('/:productId',authjwt.verifyToken,updateProductById)
+
+router.delete('/productId',authjwt.verifyToken,deleteProductById)
 
 export default router;
 
