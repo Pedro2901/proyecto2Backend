@@ -55,15 +55,16 @@ const token = jwt.sign({id: userFound._id}, config.SECRET, {
     res.json({token});
 };
 
-export async function GetUserById(req, res) {
+export async function GetUserById(req, res,next) {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).send();
+     
     }
     console.log(user)
     
-
+  next()
   } catch (error) {
     res.status(500).send();
   }
@@ -79,6 +80,7 @@ export async function UpdateUserById(req, res) {
       return res.status(404).send();
     }
     res.json(user);
+    next()
   } catch (error) {
     res.status(400).send(error);
   }
