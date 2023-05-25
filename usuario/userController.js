@@ -70,21 +70,21 @@ export async function GetUserById(req, res,next) {
   }
 };
 
-export async function UpdateUserById(req, res) {
+export async function UpdateUserById(req, res, next) {
   try {
-    const {username,email,password}=req.body
+    const { username, email, password } = req.body;
 
-    await User.findByIdAndUpdate(req.params.id , {username,email,password})
+    const user = await User.findByIdAndUpdate(req.params.id, { username, email, password });
+
     
-    if (!user) {
-      return res.status(404).send();
-    }
-    res.json(user);
-    next()
   } catch (error) {
-    res.status(400).send(error);
+    return res.status(400).send({ message: "No se están actualizando datos" });
   }
+
+  
 };
+
+
 
 export async function DeleteUserById(req, res) {
   try {
