@@ -25,6 +25,9 @@ export async function createUser(req, res) {
 
   const savedUser = await newUser.save();
 console.log(savedUser)
+
+
+
   //con sign creamos un token
   //se conforma con "que dato voy a estar guardando dentro del token"
   //palabra secreta
