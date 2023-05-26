@@ -15,6 +15,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    isEnabled: { type: Boolean, default: true },
     roles: [
       {
         type: Schema.Types.ObjectId,
