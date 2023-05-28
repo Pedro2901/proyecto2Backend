@@ -7,7 +7,7 @@ export const createProduct = async (req, res) => {
     const newProduct = new Product({
       name,
       category,
-      price, 
+      price,
       userId
     });
 

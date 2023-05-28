@@ -50,7 +50,7 @@ export async function getPedidoById(req, res) {
     const usuario = await User.findById(pedido.idUsuario);
 
     if (pedido.idUsuario != idUsuario) return res.status(403).json({ message: 'El usuario actual no está autorizado porque no es dueño del pedido.' });
-    
+
     if (!vendedor.isEnabled) return res.status(403).json({ message: 'No se puede encontrar el pedido, el vendedor no está activo.' });
     if (!usuario.isEnabled) return res.status(403).json({ message: 'No se puede encontrar el pedido, el usuario no está activo.' });
 

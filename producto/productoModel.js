@@ -5,6 +5,12 @@ const ProductSchema = new Schema({
   name: String,
   category: String,
   price: Number,
+  calificacionGral: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 5
+  },
   // Añade aquí cualquier otro campo que quieras para tus productos
   isEnabled: { type: Boolean, default: true }
 });

@@ -4,7 +4,7 @@ import userRoutes from './usuario/user.Routes';
 import pedidoRoutes from './pedido/pedido.Routes';
 import authRoutes from './auth/auth.routes';
 import productRoutes from './producto/producto.Routes'
-import {createRoles} from './libs/initialSetup'
+import { createRoles } from './libs/initialSetup'
 
 export function server() {
     const app = express();
