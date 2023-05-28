@@ -1,3 +1,3 @@
 export default {
-    SECRET: 'products-api'
+    SECRET: process.env.JWT_SECRET
     }

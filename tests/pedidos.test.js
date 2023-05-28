@@ -1,9 +1,11 @@
 import request from 'supertest';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
+import { config } from 'dotenv';
 import { server } from '../servidor';
 import { createPedido, getPedidoById, getPedidos, putPedido } from '../pedido/pedidoController';
 
+config();
 const MONGO_URI = 'mongodb+srv://' +
     process.env.MONGO_USER +
     ':' +
@@ -21,11 +23,12 @@ function verifyToken(token) {
 }
 
 const response = {
-    status: (statusCode) => {
+    statusCode: 200,
+    status(statusCode) {
         this.statusCode = statusCode;
         return this;
     },
-    json: (data) => {
+    json(data) {
         return {
             statusCode: this.statusCode,
             body: JSON.stringify(data)
@@ -34,13 +37,26 @@ const response = {
 }
 
 describe('Tests controlador pedidos', () => {
-    test('Controlador createPedido', async () => {
-        const idVendedor = "ID_REAL";
+    let servidor;
+    beforeAll(async () => {
+        servidor = server();
+        await mongoose.connect(MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        });
+    });
+
+    afterAll(async () => {
+        await mongoose.connection.close();
+    });
+
+    test('Controlador createPedido exitoso', async () => {
+        const idVendedor = "64728065687f82f07f1f2d0b";
         const producto = {
-            nombre: "PROD_REAL",
+            nombre: "Salvavidas",
             cantidad: 23
         }
-        const idUsuario = "ID_REAL";
+        const idUsuario = "646d2f247546bd7874f3eb88";
         const req = {
             idUsuario,
             body: {
@@ -50,16 +66,16 @@ describe('Tests controlador pedidos', () => {
         }
         const pedidoResponse = await createPedido(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(JSON.parse(pedidoResponse.body).producto.nombre).toBe('PROD_REAL');
+        expect(JSON.parse(pedidoResponse.body).producto.nombre).toBe('Salvavidas');
     })
 
-    test('Controlador createPedido', async () => {
-        const idVendedor = "ID_REAL";
+    test('Controlador createPedido erróneo', async () => {
+        const idVendedor = "64728065687f82f07f1f2d0b";
         const producto = {
-            nombre: "PROD_REAL",
+            nombre: "Salvavidas",
             cantidad: 23
         }
-        const idUsuario = "ID_INCORRECTO";
+        const idUsuario = "646d2f247546bd7874f3eb78";
         const req = {
             idUsuario,
             body: {
@@ -72,44 +88,44 @@ describe('Tests controlador pedidos', () => {
         expect(JSON.parse(pedidoResponse.body).message).toBe('Usuario no encontrado.');
     })
 
-    test('Controlador getPedidoById', async () => {
-        const idUsuario = "ID_REAL";
+    test('Controlador getPedidoById exitoso', async () => {
+        const idUsuario = "647121766fdeadd8b4933a2c";
         const req = {
             idUsuario,
-            params: { _id: "ID_REAL" }
+            params: { _id: "64728f55929403aa2857cd51" }
         }
         const pedidoResponse = await getPedidoById(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(JSON.parse(pedidoResponse.body)._id).toBe('ID_REAL');
+        expect(JSON.parse(pedidoResponse.body)._id).toBe('64728f55929403aa2857cd51');
     })
 
-    test('Controlador getPedidoById', async () => {
-        const idUsuario = "ID_REAL";
+    test('Controlador getPedidoById erróneo', async () => {
+        const idUsuario = "647121766fdeadd8b4933a2c";
         const req = {
             idUsuario,
-            params: { _id: "ID_INEXISTENTE" }
+            params: { _id: "64728f55929403aa2857cd75" }
         }
         const pedidoResponse = await getPedidoById(req, response)
         expect(pedidoResponse.statusCode).toBe(404);
         expect(JSON.parse(pedidoResponse.body).message).toBe('No se encontró pedido con esa ID o está inhabilitado.');
     })
 
-    test('Controlador getPedidos', async () => {
-        const idUsuario = "ID_REAL";
+    test('Controlador getPedidos exitoso', async () => {
+        const idUsuario = "647121766fdeadd8b4933a2c";
         const req = {
             idUsuario,
             query: {
                 fechaInicio: "22/05/2023 00:00:00",
-                fechaFin: "26/05/2023 23:59:59"
+                fechaFin: "28/05/2023 23:59:59"
             }
         }
         const pedidoResponse = await getPedidos(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(JSON.parse(pedidoResponse.body).idUsuario).toBe('ID_REAL');
+        expect(JSON.parse(pedidoResponse.body)).toHaveLength(1);
     })
 
-    test('Controlador getPedidos', async () => {
-        const idUsuario = "ID_INACTIVO";
+    test('Controlador getPedidos erróneo', async () => {
+        const idUsuario = "647106bd27a49530f668457b";
         const req = {
             idUsuario,
             query: {
@@ -122,30 +138,30 @@ describe('Tests controlador pedidos', () => {
         expect(JSON.parse(pedidoResponse.body).message).toBe('No se pueden obtener pedidos, el usuario no está activo');
     })
 
-    test('Controlador putPedido', async () => {
-        const idUsuario = "ID_REAL";
+    test('Controlador putPedido exitoso', async () => {
+        const idUsuario = "647121766fdeadd8b4933a2c";
         const req = {
             idUsuario,
             body: {
                 comentarios: "Muy buen producto",
                 calificacion: 4
             },
-            params: { _id: "ID_PEDIDO_REAL" }
+            params: { _id: "64728f55929403aa2857cd51" }
         }
         const pedidoResponse = await putPedido(req, response)
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(JSON.parse(pedidoResponse.body)._id).toBe('ID_PEDIDO_REAL');
+        expect(JSON.parse(pedidoResponse.body)._id).toBe('64728f55929403aa2857cd51');
     })
 
-    test('Controlador putPedido', async () => {
-        const idUsuario = "ID_REAL";
+    test('Controlador putPedido erróneo', async () => {
+        const idUsuario = "647121766fdeadd8b4933a2c";
         const req = {
             idUsuario,
             body: {
                 comentarios: "Muy buen producto",
                 calificacion: 4
             },
-            params: { _id: "ID_PEDIDO_INEXISTENTE" }
+            params: { _id: "64728f55929403aa2857ed61" }
         }
         const pedidoResponse = await putPedido(req, response)
         expect(pedidoResponse.statusCode).toBe(404);
@@ -155,11 +171,11 @@ describe('Tests controlador pedidos', () => {
 
 describe('Tests endpoints pedidos', () => {
     let servidor;
-    beforeAll(() => {
+    beforeAll(async () => {
         servidor = server();
-        mongoose.connect(MONGO_URI, {}, (err) => {
-            if (err) console.error(err);
-            else console.log('Conectado a la base de datos de MongoDB.');
+        await mongoose.connect(MONGO_URI, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
         });
     });
 
@@ -167,45 +183,45 @@ describe('Tests endpoints pedidos', () => {
         await mongoose.connection.close();
     });
 
-    test('Endpoint crear pedido', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint crear pedido exitoso', async () => {
+        const user = { email: 'juanp@gmail.com', password: '123456789' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
 
         const body = {
-            idVendedor: "ID_REAL",
+            idVendedor: "64728065687f82f07f1f2d0b",
             producto: {
-                nombre: "PROD_REAL",
+                nombre: "Salvavidas",
                 cantidad: 23
             }
         }
-        const pedidoResponse = await request(server)
+        const pedidoResponse = await request(servidor)
             .post('/pedidos/')
             .set('Authorization', `Bearer ${res.body.token}`)
             .send(body);
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(pedidoResponse.body.producto.nombre).toBe('PROD_REAL');
+        expect(pedidoResponse.body.producto.nombre).toBe('Salvavidas');
     })
 
-    test('Endpoint crear pedido', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint crear pedido erróneo', async () => {
+        const user = { email: 'juanp@gmail.com', password: '123456789' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
 
         const body = {
-            idVendedor: "ID_INCORRECTO",
+            idVendedor: "64728065687f82f07f1f2e1f",
             producto: {
-                nombre: "PROD_REAL",
+                nombre: "Salvavidas",
                 cantidad: 23
             }
         }
-        const pedidoResponse = await request(server)
+        const pedidoResponse = await request(servidor)
             .post('/pedidos/')
             .set('Authorization', `Bearer ${res.body.token}`)
             .send(body);
@@ -213,79 +229,78 @@ describe('Tests endpoints pedidos', () => {
         expect(pedidoResponse.body.message).toBe('Vendedor no encontrado.');
     })
 
-    test('Endpoint retornar datos según id', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint retornar datos según id exitoso', async () => {
+        const user = { email: 'zlatan@gmail.com', password: 'zlatan' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
 
-        const pedidoResponse = await request(server)
-            .get('/pedidos/ID_REAL')
+        const pedidoResponse = await request(servidor)
+            .get('/pedidos/64728f55929403aa2857cd51')
             .set('Authorization', `Bearer ${res.body.token}`)
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(pedidoResponse.body._id).toBe('ID_REAL');
+        expect(pedidoResponse.body._id).toBe('64728f55929403aa2857cd51');
     })
 
-    test('Endpoint retornar datos según id', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint retornar datos según id erróneo', async () => {
+        const user = { email: 'zlatan@gmail.com', password: 'zlatan' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
 
-        const pedidoResponse = await request(server)
-            .get('/pedidos/ID_ERRONEO')
+        const pedidoResponse = await request(servidor)
+            .get('/pedidos/64728f55929403aa2857ef01')
             .set('Authorization', `Bearer ${res.body.token}`)
         expect(pedidoResponse.statusCode).toBe(404);
         expect(pedidoResponse.body.message).toBe('No se encontró pedido con esa ID o está inhabilitado.');
     })
 
-    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas exitoso', async () => {
+        const user = { email: 'zlatan@gmail.com', password: 'zlatan' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
 
-        const pedidoResponse = await request(server)
+        const pedidoResponse = await request(servidor)
             .get('/pedidos/')
             .set('Authorization', `Bearer ${res.body.token}`)
             .query({
-                fechaInicio: "22/05/2023 00:00:00",
-                fechaFin: "26/05/2023 00:00:00"
+                fechaInicio: "25/05/2023 00:00:00",
+                fechaFin: "29/05/2023 00:00:00"
             })
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(pedidoResponse.body.username).toBe('JuanFran');
+        expect(pedidoResponse.body).toHaveLength(1);
     })
 
-    //A revisar
-    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint retornar pedidos HECHOS por un usuario y/o entre fechas dadas erróneo', async () => {
+        const user = { email: 'j@gmail.com', password: '123456789' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
-        expect(res.statusCode).toBe(403);
-        expect(res.body).toHaveProperty('token');
+        expect(res.statusCode).toBe(400);
+        expect(res.body.message).toBe('User not found');
 
-        const pedidoResponse = await request(server)
+        const pedidoResponse = await request(servidor)
             .get('/pedidos/')
             .set('Authorization', `Bearer ${res.body.token}`)
             .query({
                 fechaInicio: "22/05/2023 00:00:00",
                 fechaFin: "26/05/2023 00:00:00"
             })
-        expect(pedidoResponse.statusCode).toBe(403);
-        expect(pedidoResponse.body.message).toBe('Usuario no autorizado');
+        expect(pedidoResponse.statusCode).toBe(401);
+        expect(pedidoResponse.body.message).toBe('Token inválido');
     })
 
-    test('Endpoint modificar comentarios y calificación del pedido', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint modificar comentarios y calificación del pedido exitoso', async () => {
+        const user = { email: 'zlatan@gmail.com', password: 'zlatan' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
@@ -294,28 +309,27 @@ describe('Tests endpoints pedidos', () => {
             comentarios: "Producto regular",
             calificacion: 3
         }
-        const pedidoResponse = await request(server)
-            .put('/pedidos/ID_PEDIDO_REAL')
+        const pedidoResponse = await request(servidor)
+            .put('/pedidos/64728f55929403aa2857cd51')
             .set('Authorization', `Bearer ${res.body.token}`)
             .send(body);
         expect(pedidoResponse.statusCode).toBe(200);
-        expect(pedidoResponse.body._id).toBe('ID_PEDIDO_REAL');
+        expect(pedidoResponse.body._id).toBe('64728f55929403aa2857cd51');
     })
 
-    test('Endpoint modificar comentarios y calificación del pedido', async () => {
-        const user = { username: 'JuanFran', password: '92420ekjwd' };
-        const res = await request(server)
-            .post('/auth/signin')
+    test('Endpoint modificar comentarios y calificación del pedido erróneo', async () => {
+        const user = { email: 'zlatan@gmail.com', password: 'zlatan' };
+        const res = await request(servidor)
+            .get('/user/login')
             .send(user);
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('token');
-
         const body = {
             comentarios: "Producto regular",
             calificacion: 3
         }
-        const pedidoResponse = await request(server)
-            .put('/pedidos/ID_PEDIDO_INEXISTENTE')
+        const pedidoResponse = await request(servidor)
+            .put('/pedidos/64728f55929403bb2867cd51')
             .set('Authorization', `Bearer ${res.body.token}`)
             .send(body);
         expect(pedidoResponse.statusCode).toBe(404);
