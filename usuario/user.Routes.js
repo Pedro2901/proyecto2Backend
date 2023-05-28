@@ -8,7 +8,7 @@ router.post('/', createUser);
 // Agrega las demás rutas aquí:
 router.get('/login', GetUser);
 router.get('/:id', GetUserById);
-router.put('/:id',[authjwt.verifyToken,authjwt.isModerator], UpdateUserById);
-router.delete('/:id',[authjwt.verifyToken,authjwt.isModerator], DeleteUserById);
+router.put('/:id',[authjwt.verifyToken,authjwt.isAdmin], UpdateUserById);
+router.delete('/:id',[authjwt.verifyToken,authjwt.isAdmin], DeleteUserById);
 
 export default router;
