@@ -22,12 +22,8 @@ export async function createUser(req, res) {
     const role = await Role.findOne({ name: "user" })
     newUser.roles = [role._id];
   }
-  console.log(newUser)
 
   const savedUser = await newUser.save();
-  console.log(savedUser)
-
-
 
   //con sign creamos un token
   //se conforma con "que dato voy a estar guardando dentro del token"
@@ -65,15 +61,12 @@ export async function GetUserById(req, res, next) {
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).send();
-
     }
-    console.log(user)
-
     next()
   } catch (error) {
     res.status(500).send();
   }
-};
+}
 
 export async function UpdateUserById(req, res, next) {
   try {
@@ -81,15 +74,11 @@ export async function UpdateUserById(req, res, next) {
 
     const user = await User.findByIdAndUpdate(req.params.id, { username, email, password });
 
-
   } catch (error) {
-    return res.status(400).send({ message: "No se están actualizando datos" });
+    return res.status(400).send({ message: 'No se están actualizando datos' });
   }
 
-
 };
-
-
 
 export async function DeleteUserById(req, res) {
   try {
@@ -101,4 +90,4 @@ export async function DeleteUserById(req, res) {
   } catch (error) {
     res.status(500).send();
   }
-};
+}
