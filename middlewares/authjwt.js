@@ -31,18 +31,18 @@ export const isModerator = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
 
-    console.log("entro al tryisModerator")
+    //console.log("entro al tryisModerator")
     const user = await User.findById(req.params.id);
-    console.log("user", user)
-    console.log("decoded:", decoded)
+    //console.log("user", user)
+    //console.log("decoded:", decoded)
     const roles = await Role.find({ _id: { $in: user.roles } });
 
     const isModerator = roles.map(role => role.name === "user").includes(true);
     if (isModerator) {
-      console.log("entro en el if")
+      //console.log("entro en el if")
       next();
     } else {
-      console.log("entro en el else")
+    //  console.log("entro en el else")
       return res.status(403).json({ message: "Require user Role!" });
     }
   } catch (error) {
@@ -57,18 +57,18 @@ export const isAdmin = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
 
-    console.log("entro al tryisModerator")
+    //console.log("entro al tryisModerator")
     const user = await User.findById(req.params.id);
-    console.log("user", user)
-    console.log("decoded:", decoded)
+    //console.log("user", user)
+    //console.log("decoded:", decoded)
     const roles = await Role.find({ _id: { $in: user.roles } });
 
     const isModerator = roles.map(role => role.name === "user").includes(true);
     if (isModerator && decoded.id === req.params.id) {
-      console.log("entro en el if")
+      //console.log("entro en el if")
       next();
     } else {
-      console.log("entro en el else")
+      //console.log("entro en el else")
       return res.status(403).json({ message: "Require user Role!" });
     }
   } catch (error) {

@@ -7,34 +7,42 @@ export async function createUser(req, res) {
   const { username, email, password, direccion, roles } = req.body;
   //: await User.encryptPassword (password)
 
-  const newUser = new User({
-    username,
-    email,
-    password,
-    direccion
-  })
 
-  if (roles) {
-    const foundRoles = await Role.find({ name: { $in: roles } })
-    newUser.roles = foundRoles.map(role => role._id)
-  } else {
-    const role = await Role.findOne({ name: "user" })
-    newUser.roles = [role._id];
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "El formato del correo electrónico no es válido" });
+  }else{
+    const newUser = new User({
+      username,
+      email,
+      password,
+      direccion
+    })
+  
+    if (roles) {
+      const foundRoles = await Role.find({ name: { $in: roles } })
+      newUser.roles = foundRoles.map(role => role._id)
+    } else {
+      const role = await Role.findOne({ name: "user" })
+      newUser.roles = [role._id];
+    }
+  
+    const savedUser = await newUser.save();
+  
+    //con sign creamos un token
+    //se conforma con "que dato voy a estar guardando dentro del token"
+    //palabra secreta
+    //objeto de configuración
+    //configuramos para que el token dure 24 horas
+  
+    const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
+      expiresIn: 30 * 60 * 1000,
+    });
+  
+    res.json({ token });
   }
-
-  const savedUser = await newUser.save();
-
-  //con sign creamos un token
-  //se conforma con "que dato voy a estar guardando dentro del token"
-  //palabra secreta
-  //objeto de configuración
-  //configuramos para que el token dure 24 horas
-
-  const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
-    expiresIn: 30 * 60 * 1000,
-  });
-
-  res.json({ token });
+  
 };
 
 export async function GetUser(req, res) {

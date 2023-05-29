@@ -63,7 +63,7 @@ it('Test la creación de un usuario con los campos requeridos y los roles especi
       username: 'testuser',
       email: 'testuser@test.com',
       password: 'testpassword',
-      roles: ['user'],
+      roles: ['admin'],
     },
   };
   const res = {
@@ -101,6 +101,28 @@ it('Test de la creación de un usuario con formato de correo electrónico no vá
   await createUser(req, res);
   expect(res.json).toHaveBeenCalledWith({ message: 'Please enter a valid email address' });
 });
+
+
+it('Test de la creación de un usuario con campos requeridos y dirección', async () => {
+  const req = {
+    body: {
+      username: 'Juanposky',
+      email: 'juanp@gmail.com',
+      password: '123456789',
+      direccion: 'Av Siempre Viva',
+    },
+  };
+  const res = {
+    json: jest.fn(),
+  };
+  await createUser(req, res);
+  expect(res.json).toHaveBeenCalled();
+});
+
+
+
+
+
 
 it('Test que el token contiene el ID del usuario.', async () => {
   const req = {
@@ -261,8 +283,8 @@ it('test actualizacion exitosa del usuario', async () => {
 
 it('Comprueba que se devuelve un mensaje de error si se proporciona un ID de usuario no válido', async () => {
   const req = {
-    params: { id: 'invalid_id' },
-    body: { username: 'new_username', email: 'new_email', password: 'new_password' },
+    params: { id: '64728065687f82f07f1f1234' },
+    body: { username: 'Juanposky', email: 'juanp@gmail.com', password: '123456789' },
   };
   const res = { status: jest.fn().mockReturnThis(), send: jest.fn() };
 
