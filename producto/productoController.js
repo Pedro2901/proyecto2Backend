@@ -76,7 +76,7 @@ app.listen(3000, () => {
   console.log('Servidor escuchando en el puerto 3000');
 });
 
-  };
+  
 
   export const getProductById=async(req,res)=>{
     // Ruta POST para crear un producto de un usuario en la base de datos
@@ -193,7 +193,7 @@ app.get('/categorias', (req, res) => {
     
       // Enviar una respuesta indicando éxito
       res.json({ mensaje: 'Producto actualizado con éxito' });
->>>>>>> Stashed changes
+      
     });
 
     const productSaved = await newProduct.save();
@@ -202,7 +202,7 @@ app.get('/categorias', (req, res) => {
     console.log(error);
     return res.status(500).json(error);
   }
-};
+  },
 
 export const getProducts = async (req, res) => {
   // Importar los módulos necesarios
@@ -280,5 +280,4 @@ export const deleteProductById = async (req, res) => {
     }
   });
 }
-  }
-
+  
