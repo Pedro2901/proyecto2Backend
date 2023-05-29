@@ -3,14 +3,13 @@ export const createProduct = async (req, res) => {
   const { name, category, price } = req.body;
   const { userId } = req;
 
-<<<<<<< Updated upstream
+  Updated upstream
   try {
     const newProduct = new Product({
       name,
       category,
       price,
-      userId
-=======
+      userId,
   export const getProducts=async(req,res)=>{
     // Importar los módulos necesarios
 const express = require('express');
@@ -22,7 +21,7 @@ const productos = [
   { id: 2, nombre: 'Producto 2', precio: 15.99 },
   { id: 3, nombre: 'Producto 3', precio: 7.99 },
 ];
-
+  
 // Ruta GET para obtener todos los productos
 app.get('/productos', (req, res) => {
   // Aquí puedes realizar cualquier lógica adicional, como consultar una base de datos
@@ -281,4 +280,5 @@ export const deleteProductById = async (req, res) => {
     }
   });
 }
+  }
 
