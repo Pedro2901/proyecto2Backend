@@ -7,7 +7,9 @@ export async function createUser(req, res) {
   const { username, email, password, direccion, roles } = req.body;
   //: await User.encryptPassword (password)
 
-
+  if (!username || !email || !password || !direccion) {
+    return res.status(400).json({ message: "Please enter all required fields" });
+  }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {

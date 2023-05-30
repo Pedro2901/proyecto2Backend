@@ -15,7 +15,7 @@ export function server() {
 
     // Rutas
     app.use('/pedidos', pedidoRoutes)
-    app.use('/user', userRoutes)
+    app.use('/', userRoutes)
     app.use('/auth', authRoutes)
     app.use('/product', productRoutes)
 

@@ -43,10 +43,10 @@ export const isModerator = async (req, res, next) => {
       next();
     } else {
     //  console.log("entro en el else")
-      return res.status(403).json({ message: "Require user Role!" });
+      return res.status(403).json({ message: "Role not found" });
     }
   } catch (error) {
-    return res.status(500).send({ message: error });
+    return res.status(500).send({ message:"Unauthorized" });
   }
 };
 
@@ -72,7 +72,7 @@ export const isAdmin = async (req, res, next) => {
       return res.status(403).json({ message: "Require user Role!" });
     }
   } catch (error) {
-    return res.status(500).send({ message: error });
+    return res.status(500).send({ message: "Unauthorized" });
   }
 }
 
